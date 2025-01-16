@@ -94,14 +94,14 @@ public class SQLite {
 	                int biziEsperantza = sqliteResultSet.getInt("Bizi_Esperantza");
 	                String kontinenteakIzena = sqliteResultSet.getString("Kontinenteak_Izena");
 
-	                // Check if the record already exists in Access
+	               
 	                String checkQuery = "SELECT COUNT(*) AS count FROM estatuak WHERE Pais = ?";
 	                PreparedStatement accessCheckStatement = accessConnection.prepareStatement(checkQuery);
 	                accessCheckStatement.setString(1, pais);
 	                ResultSet accessCheckResult = accessCheckStatement.executeQuery();
 
 	                if (accessCheckResult.next() && accessCheckResult.getInt("count") == 0) {
-	                    // Insert the new record into Access
+	                 
 	                    String insertQuery = "INSERT INTO estatuak (Pais, Capital, Moneda, Superficie, Poblacion, Bizi_Esperantza, Kontinenteak_Izena) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	                    PreparedStatement accessInsertStatement = accessConnection.prepareStatement(insertQuery);
 	                    accessInsertStatement.setString(1, pais);
@@ -137,16 +137,16 @@ public class SQLite {
 		        return;
 		    }
 
-		    Scanner scanner = new Scanner(System.in);  // Mover el scanner aquí
+		    Scanner scanner = new Scanner(System.in);  
 
 		    try {
-		        // Mostrar los registros actuales
+		       
 		        System.out.println("Erregistroak SQL Server datu-basean:");
 		        String selectQuery = "SELECT * FROM estatuak";
 		        PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
 		        ResultSet resultSet = selectStatement.executeQuery();
 
-		        // Imprimir los registros disponibles
+		        
 		        while (resultSet.next()) {
 		            System.out.printf("Pais: %s, Capital: %s, Moneda: %s, Superficie: %d, Poblacion: %d, Bizi_Esperantza: %d, Kontinenteak_Izena: %s%n",
 		                resultSet.getString("Pais"),
@@ -159,11 +159,11 @@ public class SQLite {
 		            );
 		        }
 
-		        // Preguntar al usuario qué registro quiere modificar
+		       
 		        System.out.println("\nSartu aldatu nahi duzun herrialdearen izena:");
 		        String pais = scanner.nextLine();
 
-		        // Comprobar si el registro existe
+		        
 		        String checkQuery = "SELECT COUNT(*) AS count FROM estatuak WHERE Pais = ?";
 		        PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
 		        checkStatement.setString(1, pais);
@@ -174,7 +174,7 @@ public class SQLite {
 		            return;
 		        }
 
-		        // Ofrecer opciones al usuario para elegir qué cambiar
+		   
 		        System.out.println("\nAukeratu aldatu nahi duzun eremua:");
 		        System.out.println("1. Capital");
 		        System.out.println("2. Moneda");
@@ -187,21 +187,21 @@ public class SQLite {
 		        boolean seguirEditando = true;
 		        while (seguirEditando) {
 		            System.out.print("\nAukeratu eremuaren zenbakia (1-7): ");
-		            String input = scanner.nextLine();  // Usar nextLine() para asegurarse de que lea correctamente
+		            String input = scanner.nextLine();  
 		            int opcion;
 
 		            try {
-		                opcion = Integer.parseInt(input);  // Intentar convertir a número
+		                opcion = Integer.parseInt(input);  
 		            } catch (NumberFormatException e) {
 		                System.out.println("Sartutako balioa ez da zenbakia. Mesedez, sartu zenbaki bat.");
-		                continue;  // Volver al ciclo si no es un número válido
+		                continue;  
 		            }
 
 		            String updateQuery = "";
 		            PreparedStatement updateStatement;
 
 		            switch (opcion) {
-		                case 1: // Capital
+		                case 1: 
 		                    System.out.print("Sartu kapital berria: ");
 		                    String nuevaCapital = scanner.nextLine();
 		                    updateQuery = "UPDATE estatuak SET Capital = ? WHERE Pais = ?";
@@ -212,7 +212,7 @@ public class SQLite {
 		                    System.out.println("Capital eguneratu da.");
 		                    break;
 
-		                case 2: // Moneda
+		                case 2: 
 		                    System.out.print("Sartu moneda berria: ");
 		                    String nuevaMoneda = scanner.nextLine();
 		                    updateQuery = "UPDATE estatuak SET Moneda = ? WHERE Pais = ?";
@@ -223,7 +223,7 @@ public class SQLite {
 		                    System.out.println("Moneda eguneratu da.");
 		                    break;
 
-		                case 3: // Superficie
+		                case 3: 
 		                    System.out.print("Sartu gainazal berria: ");
 		                    int nuevaSuperficie = Integer.parseInt(scanner.nextLine());
 		                    updateQuery = "UPDATE estatuak SET Superficie = ? WHERE Pais = ?";
@@ -234,7 +234,7 @@ public class SQLite {
 		                    System.out.println("Superficie eguneratu da.");
 		                    break;
 
-		                case 4: // Poblacion
+		                case 4: 
 		                    System.out.print("Sartu populazio berria: ");
 		                    int nuevaPoblacion = Integer.parseInt(scanner.nextLine());
 		                    updateQuery = "UPDATE estatuak SET Poblacion = ? WHERE Pais = ?";
@@ -245,7 +245,7 @@ public class SQLite {
 		                    System.out.println("Poblacion eguneratu da.");
 		                    break;
 
-		                case 5: // Bizi_Esperantza
+		                case 5: 
 		                    System.out.print("Sartu bizi esperantza berria: ");
 		                    int nuevaBiziEsperantza = Integer.parseInt(scanner.nextLine());
 		                    updateQuery = "UPDATE estatuak SET Bizi_Esperantza = ? WHERE Pais = ?";
@@ -256,7 +256,7 @@ public class SQLite {
 		                    System.out.println("Bizi esperantza eguneratu da.");
 		                    break;
 
-		                case 6: // Kontinenteak_Izena
+		                case 6: 
 		                    System.out.print("Sartu kontinente berria: ");
 		                    String nuevoKontinenteakIzena = scanner.nextLine();
 		                    updateQuery = "UPDATE estatuak SET Kontinenteak_Izena = ? WHERE Pais = ?";
@@ -267,7 +267,7 @@ public class SQLite {
 		                    System.out.println("Kontinente eguneratu da.");
 		                    break;
 
-		                case 7: // Finalizar
+		                case 7: 
 		                    seguirEditando = false;
 		                    System.out.println("Aldaketak amaitu dira.");
 		                    break;
@@ -280,7 +280,7 @@ public class SQLite {
 		    } catch (SQLException e) {
 		        System.err.println("Errorea SQL Server datu-basearekin: " + e.getMessage());
 		    } finally {
-		        // scanner.close();  // No cerrar aquí para evitar problemas de lectura posterior
+		        
 		    }
 		}
 	 public boolean isConnectionOpen() {

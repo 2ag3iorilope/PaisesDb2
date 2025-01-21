@@ -283,6 +283,86 @@ public class SQLite {
 		        
 		    }
 		}
+	 
+	 public void syncUpdatedDataToAccess() {
+		    Connection sqlServerConnection = null;
+		    Connection accessConnection = null;
+
+		    try {
+		        // Conexión a SQL Server
+		        sqlServerConnection = DriverManager.getConnection(
+		            "jdbc:mysql://localhost:3306/paises?useSSL=false&serverTimezone=UTC",
+		            "root",
+		            "mysql"
+		        );
+
+		        // Conexión a Access
+		        accessConnection = DriverManager.getConnection("jdbc:ucanaccess://./DatuBaseak/paises.accdb");
+
+		        // Obtener datos de SQL Server
+		        String selectSqlServerQuery = "SELECT * FROM estatuak";
+		        PreparedStatement sqlServerStatement = sqlServerConnection.prepareStatement(selectSqlServerQuery);
+		        ResultSet sqlServerResultSet = sqlServerStatement.executeQuery();
+
+		        while (sqlServerResultSet.next()) {
+		            String pais = sqlServerResultSet.getString("Pais");
+		            String capital = sqlServerResultSet.getString("Capital");
+		            String moneda = sqlServerResultSet.getString("Moneda");
+		            int superficie = sqlServerResultSet.getInt("Superficie");
+		            int poblacion = sqlServerResultSet.getInt("Poblacion");
+		            int biziEsperantza = sqlServerResultSet.getInt("Bizi_Esperantza");
+		            String kontinenteakIzena = sqlServerResultSet.getString("Kontinenteak_Izena");
+
+		            // Comprobar si el registro existe en Access
+		            String selectAccessQuery = "SELECT * FROM estatuak WHERE Pais = ?";
+		            PreparedStatement accessSelectStatement = accessConnection.prepareStatement(selectAccessQuery);
+		            accessSelectStatement.setString(1, pais);
+		            ResultSet accessResultSet = accessSelectStatement.executeQuery();
+
+		            if (accessResultSet.next()) {
+		                // Verificar si hay cambios en los datos
+		                boolean isUpdated = !capital.equals(accessResultSet.getString("Capital")) ||
+		                                    !moneda.equals(accessResultSet.getString("Moneda")) ||
+		                                    superficie != accessResultSet.getInt("Superficie") ||
+		                                    poblacion != accessResultSet.getInt("Poblacion") ||
+		                                    biziEsperantza != accessResultSet.getInt("Bizi_Esperantza") ||
+		                                    !kontinenteakIzena.equals(accessResultSet.getString("Kontinenteak_Izena"));
+
+		                if (isUpdated) {
+		                    // Actualizar el registro en Access
+		                    String updateQuery = "UPDATE estatuak SET Capital = ?, Moneda = ?, Superficie = ?, Poblacion = ?, Bizi_Esperantza = ?, Kontinenteak_Izena = ? WHERE Pais = ?";
+		                    PreparedStatement accessUpdateStatement = accessConnection.prepareStatement(updateQuery);
+		                    accessUpdateStatement.setString(1, capital);
+		                    accessUpdateStatement.setString(2, moneda);
+		                    accessUpdateStatement.setInt(3, superficie);
+		                    accessUpdateStatement.setInt(4, poblacion);
+		                    accessUpdateStatement.setInt(5, biziEsperantza);
+		                    accessUpdateStatement.setString(6, kontinenteakIzena);
+		                    accessUpdateStatement.setString(7, pais);
+		                    accessUpdateStatement.executeUpdate();
+
+		                    System.out.println("Registro actualizado en Access: " + pais);
+		                }
+		            } else {
+		                System.out.println("El registro no existe en Access: " + pais);
+		            }
+		        }
+		    } catch (SQLException e) {
+		        System.err.println("Error al sincronizar los datos actualizados: " + e.getMessage());
+		    } finally {
+		        try {
+		            if (sqlServerConnection != null && !sqlServerConnection.isClosed()) {
+		                sqlServerConnection.close();
+		            }
+		            if (accessConnection != null && !accessConnection.isClosed()) {
+		                accessConnection.close();
+		            }
+		        } catch (SQLException e) {
+		            System.err.println("Error al cerrar las conexiones: " + e.getMessage());
+		        }
+		    }
+		}
+	 
 	 public boolean isConnectionOpen() {
 	        return connection != null;
 	    }

@@ -17,6 +17,7 @@ public class Main {
             System.out.println("1. Mostrar bases de datos disponibles");
             System.out.println("2. Sqlserver-eko erregistro bat aldatu");
             System.out.println("3. Sincronizar datos de SQLite a Access");
+            System.out.println("5. Sincronizar datos de sqlserver a Access");
             System.out.println("4. Cerrar conexión");
             System.out.println("5. Salir");
             System.out.print("Selecciona una opción: ");
@@ -53,11 +54,16 @@ public class Main {
                     System.out.println("Cerrando conexión...");
                     dbManager.closeConnection();
                     break;
-
+                    
                 case 5:
+                	dbManager.syncUpdatedDataToAccess();
+                	break;
+
+                case 6:
                     System.out.println("Saliendo del programa. ¡Hasta pronto!");
                     exit = true;
                     break;
+                
 
                 default:
                     System.out.println("Opción no válida. Por favor, selecciona una opción del menú.");

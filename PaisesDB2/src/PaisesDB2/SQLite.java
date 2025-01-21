@@ -283,23 +283,101 @@ public class SQLite {
 		        
 		    }
 		}
+	 public void addRecordToAccessWithScanner() {
+		    Connection accessConnection = null;
+		    Scanner scanner = new Scanner(System.in);
+
+		    try {
+		       
+		        accessConnection = DriverManager.getConnection("jdbc:ucanaccess://./DatuBaseak/paises.accdb");
+
+		   
+		        System.out.print("Sartu Estatuaren Izena: ");
+		        String pais = scanner.nextLine();
+
+		        System.out.print("Sartu kapitala: ");
+		        String capital = scanner.nextLine();
+
+		        System.out.print("Sartu moneda: ");
+		        String moneda = scanner.nextLine();
+
+		        System.out.print("Sartu superfiziea (km²): ");
+		        int superficie = scanner.nextInt();
+
+		        System.out.print("Sartu Poblazioa: ");
+		        int poblacion = scanner.nextInt();
+
+		        System.out.print("Sartu bizi esperantza: ");
+		        int biziEsperantza = scanner.nextInt();
+
+		        scanner.nextLine(); 
+
+		        System.out.print("Sartu Kontinentea: ");
+		        String kontinenteakIzena = scanner.nextLine();
+
+		        //Konprobatu existitzen den
+		        String selectQuery = "SELECT COUNT(*) AS count FROM estatuak WHERE Pais = ?";
+		        PreparedStatement checkStatement = accessConnection.prepareStatement(selectQuery);
+		        checkStatement.setString(1, pais);
+		        ResultSet resultSet = checkStatement.executeQuery();
+
+		        resultSet.next();
+		        int count = resultSet.getInt("count");
+
+		        if (count > 0) {
+		            System.out.println("Erregistroa existitzen da Acces-en: " + pais);
+		        } else {
+		           
+		            String insertQuery = "INSERT INTO estatuak (Pais, Capital, Moneda, Superficie, Poblacion, Bizi_Esperantza, Kontinenteak_Izena) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		            PreparedStatement insertStatement = accessConnection.prepareStatement(insertQuery);
+		            insertStatement.setString(1, pais);
+		            insertStatement.setString(2, capital);
+		            insertStatement.setString(3, moneda);
+		            insertStatement.setInt(4, superficie);
+		            insertStatement.setInt(5, poblacion);
+		            insertStatement.setInt(6, biziEsperantza);
+		            insertStatement.setString(7, kontinenteakIzena);
+
+		            int rowsAffected = insertStatement.executeUpdate();
+		            if (rowsAffected > 0) {
+		                System.out.println("Erregistroa gehitu da : " + pais);
+		            } else {
+		                System.out.println("Ezin da erregistroa gehitu: " + pais);
+		            }
+		        }
+
+		    } catch (SQLException e) {
+		        System.err.println("Errorea erregistroa gehitzean: " + e.getMessage());
+		    } catch (Exception e) {
+		        System.err.println("Errorea Datuen Sarreran: " + e.getMessage());
+		    } finally {
+		        try {
+		            if (accessConnection != null && !accessConnection.isClosed()) {
+		                accessConnection.close();
+		            }
+		        } catch (SQLException e) {
+		            System.err.println("Errorea Konexioa amaitzean: " + e.getMessage());
+		            scanner.close();
+		        }
+		    }
+		}
 	 
 	 public void syncUpdatedDataToAccess() {
 		    Connection sqlServerConnection = null;
 		    Connection accessConnection = null;
 
 		    try {
-		        // Conexión a SQL Server
+		     
 		        sqlServerConnection = DriverManager.getConnection(
 		            "jdbc:mysql://localhost:3306/paises?useSSL=false&serverTimezone=UTC",
 		            "root",
 		            "mysql"
 		        );
 
-		        // Conexión a Access
+		       
 		        accessConnection = DriverManager.getConnection("jdbc:ucanaccess://./DatuBaseak/paises.accdb");
 
-		        // Obtener datos de SQL Server
+		   
 		        String selectSqlServerQuery = "SELECT * FROM estatuak";
 		        PreparedStatement sqlServerStatement = sqlServerConnection.prepareStatement(selectSqlServerQuery);
 		        ResultSet sqlServerResultSet = sqlServerStatement.executeQuery();
@@ -313,14 +391,14 @@ public class SQLite {
 		            int biziEsperantza = sqlServerResultSet.getInt("Bizi_Esperantza");
 		            String kontinenteakIzena = sqlServerResultSet.getString("Kontinenteak_Izena");
 
-		            // Comprobar si el registro existe en Access
+		            // Konprobatu erregistroa existitzen den
 		            String selectAccessQuery = "SELECT * FROM estatuak WHERE Pais = ?";
 		            PreparedStatement accessSelectStatement = accessConnection.prepareStatement(selectAccessQuery);
 		            accessSelectStatement.setString(1, pais);
 		            ResultSet accessResultSet = accessSelectStatement.executeQuery();
 
 		            if (accessResultSet.next()) {
-		                // Verificar si hay cambios en los datos
+		              
 		                boolean isUpdated = !capital.equals(accessResultSet.getString("Capital")) ||
 		                                    !moneda.equals(accessResultSet.getString("Moneda")) ||
 		                                    superficie != accessResultSet.getInt("Superficie") ||
@@ -329,7 +407,7 @@ public class SQLite {
 		                                    !kontinenteakIzena.equals(accessResultSet.getString("Kontinenteak_Izena"));
 
 		                if (isUpdated) {
-		                    // Actualizar el registro en Access
+		                  
 		                    String updateQuery = "UPDATE estatuak SET Capital = ?, Moneda = ?, Superficie = ?, Poblacion = ?, Bizi_Esperantza = ?, Kontinenteak_Izena = ? WHERE Pais = ?";
 		                    PreparedStatement accessUpdateStatement = accessConnection.prepareStatement(updateQuery);
 		                    accessUpdateStatement.setString(1, capital);
@@ -341,14 +419,14 @@ public class SQLite {
 		                    accessUpdateStatement.setString(7, pais);
 		                    accessUpdateStatement.executeUpdate();
 
-		                    System.out.println("Registro actualizado en Access: " + pais);
+		                    System.out.println("Erregistroa eguneratu da Acces-en: " + pais);
 		                }
 		            } else {
-		                System.out.println("El registro no existe en Access: " + pais);
+		                System.out.println("Erregistroa ez da existitzen Access-en: " + pais);
 		            }
 		        }
 		    } catch (SQLException e) {
-		        System.err.println("Error al sincronizar los datos actualizados: " + e.getMessage());
+		        System.err.println("Errorea datuak sinkronizatzean: " + e.getMessage());
 		    } finally {
 		        try {
 		            if (sqlServerConnection != null && !sqlServerConnection.isClosed()) {
@@ -358,7 +436,64 @@ public class SQLite {
 		                accessConnection.close();
 		            }
 		        } catch (SQLException e) {
-		            System.err.println("Error al cerrar las conexiones: " + e.getMessage());
+		            System.err.println("Errorea konexioa amaitzean: " + e.getMessage());
+		        }
+		    }
+		}
+	 
+	 public void addNewRecordsToSQLite() {
+		    Connection accessConnection = null;
+		    Connection sqliteConnection = null;
+
+		    try {
+		       
+		        accessConnection = DriverManager.getConnection("jdbc:ucanaccess://./DatuBaseak/paises.accdb");
+
+		       
+		        sqliteConnection = DriverManager.getConnection("jdbc:sqlite:DatuBaseak/paises.db");
+
+		
+		        String selectQuery = "SELECT * FROM estatuak WHERE Pais NOT IN (SELECT Pais FROM estatuak)";
+		        PreparedStatement accessStatement = accessConnection.prepareStatement(selectQuery);
+		        ResultSet accessResultSet = accessStatement.executeQuery();
+
+		        
+		        String insertQuery = "INSERT INTO estatuak (Pais, Capital, Moneda, Superficie, Poblacion, Bizi_Esperantza, Kontinenteak_Izena) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		        PreparedStatement sqliteStatement = sqliteConnection.prepareStatement(insertQuery);
+
+		       
+		        int count = 0;
+		        while (accessResultSet.next()) {
+		            sqliteStatement.setString(1, accessResultSet.getString("Pais"));
+		            sqliteStatement.setString(2, accessResultSet.getString("Capital"));
+		            sqliteStatement.setString(3, accessResultSet.getString("Moneda"));
+		            sqliteStatement.setInt(4, accessResultSet.getInt("Superficie"));
+		            sqliteStatement.setInt(5, accessResultSet.getInt("Poblacion"));
+		            sqliteStatement.setInt(6, accessResultSet.getInt("Bizi_Esperantza"));
+		            sqliteStatement.setString(7, accessResultSet.getString("Kontinenteak_Izena"));
+
+		            sqliteStatement.executeUpdate();
+		            count++;
+		        }
+
+		        if (count > 0) {
+		            System.out.println("Gehitu dira " + count + " erregistro berri SQLite-ra.");
+		        } else {
+		            System.out.println("Ez dago erregistro berririk gehitzeko.");
+		        }
+
+		    } catch (SQLException e) {
+		        System.err.println("Errorea sinkronizasioan: " + e.getMessage());
+		    } finally {
+		        try {
+		            if (accessConnection != null && !accessConnection.isClosed()) {
+		                accessConnection.close();
+		            }
+		            if (sqliteConnection != null && !sqliteConnection.isClosed()) {
+		                sqliteConnection.close();
+		            }
+		        } catch (SQLException e) {
+		            System.err.println("Errorea konexioa amaitzean: " + e.getMessage());
 		        }
 		    }
 		}

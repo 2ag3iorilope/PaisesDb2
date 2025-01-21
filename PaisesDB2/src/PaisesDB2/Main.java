@@ -7,29 +7,32 @@ import java.util.Scanner;
 public class Main {
 
 	public static void main(String[] args) {
+		
         SQLite dbManager = new SQLite();
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
 
         while (!exit) {
 
-            System.out.println("\n=== MENÚ PRINCIPAL ===");
-            System.out.println("1. Mostrar bases de datos disponibles");
+            System.out.println("\n=== Menu Nagusia ===");
+            System.out.println("1. Erakutsi erabiltze hari garen DatuBaseak");
             System.out.println("2. Sqlserver-eko erregistro bat aldatu");
-            System.out.println("3. Sincronizar datos de SQLite a Access");
-            System.out.println("5. Sincronizar datos de sqlserver a Access");
-            System.out.println("4. Cerrar conexión");
-            System.out.println("5. Salir");
-            System.out.print("Selecciona una opción: ");
+            System.out.println("3. Sinkronizatu datuak  SQLite-tik  Access-era");
+            System.out.println("5. Sinkronizatu datuak  SQLserver-etik a Access-era");
+            System.out.println("6. Gehitu Erregistro bat Acces-era");
+            System.out.println("7. Gehitu Aldaketak Sqlitera- Acces-etik");
+            System.out.println("4. Itxi Konexioa");
+            System.out.println("5. Irten");
+            System.out.print("Aukeratu: ");
 
             int option = 0;
             try {
                 option = scanner.nextInt();
-                scanner.nextLine(); // Limpiar el salto de línea pendiente después de nextInt()
+                scanner.nextLine();
             } catch (Exception e) {
-                System.out.println("Entrada no válida. Por favor, ingrese un número.");
-                scanner.nextLine(); // Limpiar el buffer para evitar el bloqueo del Scanner
-                continue; // Volver al menú sin proceder
+                System.out.println("Aukera desegokia mesedez sartu zenbaki bat.");
+                scanner.nextLine(); 
+                continue; 
             }
 
             switch (option) {
@@ -58,8 +61,16 @@ public class Main {
                 case 5:
                 	dbManager.syncUpdatedDataToAccess();
                 	break;
-
+                	
                 case 6:
+                	dbManager.addRecordToAccessWithScanner();
+                	break;
+                case 7:
+                	dbManager.addNewRecordsToSQLite();
+                	break;
+                	
+
+                case 8:
                     System.out.println("Saliendo del programa. ¡Hasta pronto!");
                     exit = true;
                     break;
